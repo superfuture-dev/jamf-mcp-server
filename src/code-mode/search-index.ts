@@ -76,6 +76,10 @@ const CATALOG: SearchIndexEntry[] = [
   { name: 'getMobileDeviceGroups',       signature: '(type?: GroupType) => Promise<any[]>',     description: 'List mobile device groups',               category: 'mobile_devices', capabilities: ['read:mobile_devices'], readOnly: true },
   { name: 'getMobileDeviceGroupDetails', signature: '(groupId: string) => Promise<any>',        description: 'Get details for a mobile device group',   category: 'mobile_devices', capabilities: ['read:mobile_devices'], readOnly: true },
 
+  // ── Mac App Store Applications ──────────────────────────────────
+  { name: 'listMacApplications', signature: '() => Promise<any[]>', description: 'List Mac App Store (VPP) applications configured for delivery', category: 'mac_applications', capabilities: ['read:mac_applications'], readOnly: true },
+  { name: 'getMacApplicationDetails', signature: '(applicationId: string) => Promise<any>', description: 'Get Mac App Store (VPP) application details, catalog version, and scope', category: 'mac_applications', capabilities: ['read:mac_applications'], readOnly: true },
+
   // ── Mobile Device Applications ───────────────────────────────────
   { name: 'listMobileDeviceApplications', signature: '() => Promise<any[]>', description: 'List all mobile device applications configured for delivery', category: 'mobile_device_applications', capabilities: ['read:mobile_device_applications'], readOnly: true },
   { name: 'getMobileDeviceApplicationDetails', signature: '(applicationId: string) => Promise<any>', description: 'Get details for a mobile device application configured for delivery', category: 'mobile_device_applications', capabilities: ['read:mobile_device_applications'], readOnly: true },

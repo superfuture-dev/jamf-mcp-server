@@ -24,6 +24,15 @@ describe('PolicyEngine', () => {
       expect(getMethodPolicy('getMobileDeviceApplicationDetails')).toEqual(policy);
     });
 
+    it('requires a dedicated capability for Mac App Store applications', () => {
+      const policy = getMethodPolicy('listMacApplications');
+      expect(policy).toEqual({
+        classification: 'read',
+        capability: 'read:mac_applications',
+      });
+      expect(getMethodPolicy('getMacApplicationDetails')).toEqual(policy);
+    });
+
     it('returns undefined for unknown methods', () => {
       expect(getMethodPolicy('nonExistentMethod')).toBeUndefined();
     });
@@ -39,6 +48,18 @@ describe('PolicyEngine', () => {
       const result = checkAccess('listMobileDeviceApplications', ['read:mobile_devices']);
       expect(result.allowed).toBe(false);
       expect(result.reason).toContain('read:mobile_device_applications');
+    });
+
+    it('grants Mac App Store application reads only with their dedicated capability', () => {
+      for (const method of ['listMacApplications', 'getMacApplicationDetails']) {
+        expect(checkAccess(method, ['read:mac_applications']).allowed).toBe(true);
+
+        for (const capability of ['read:app_installers', 'read:computers', 'read:mobile_device_applications']) {
+          const result = checkAccess(method, [capability]);
+          expect(result.allowed).toBe(false);
+          expect(result.reason).toContain('read:mac_applications');
+        }
+      }
     });
 
     it('denies access when capability is not granted', () => {
@@ -69,6 +90,8 @@ describe('PolicyEngine', () => {
       expect(getClassification('getAllComputers')).toBe('read');
       expect(getClassification('listPolicies')).toBe('read');
       expect(getClassification('searchScripts')).toBe('read');
+      expect(getClassification('listMacApplications')).toBe('read');
+      expect(getClassification('getMacApplicationDetails')).toBe('read');
     });
 
     it('classifies write methods', () => {

@@ -252,6 +252,10 @@ These combine multiple API calls into a single operation:
 - **createAdvancedComputerSearch**: Create a new advanced search (requires confirmation)
 - **deleteAdvancedComputerSearch**: Delete a saved search (requires confirmation)
 
+### Mac App Store Applications
+- **listMacApplications**: List Mac App Store (VPP) applications configured for delivery
+- **getMacApplicationDetails**: Get a Mac App Store application definition, catalog version, and scope details
+
 ### Mobile Device Management
 - **searchMobileDevices**: Search mobile devices by name, serial, or UDID
 - **getMobileDeviceDetails**: Detailed mobile device information

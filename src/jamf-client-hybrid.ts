@@ -2000,6 +2000,48 @@ export class JamfApiClientHybrid implements IJamfApiClient {
   }
 
   /**
+   * List all Mac App Store applications configured for delivery
+   */
+  async listMacApplications(): Promise<any[]> {
+    await this.ensureAuthenticated();
+
+    try {
+      logger.info('Listing Mac App Store applications using Classic API...');
+      const response = await this.axiosInstance.get('/JSSResource/macapplications');
+      return response.data.mac_applications || [];
+    } catch (error) {
+      if (isAxiosError(error)) {
+        throw JamfAPIError.fromAxiosError(error, { operation: 'listMacApplications' });
+      }
+      logger.error('Failed to list Mac App Store applications:', { error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Get details for a Mac App Store application configured for delivery
+   */
+  async getMacApplicationDetails(applicationId: string): Promise<any> {
+    if (typeof applicationId !== 'string' || !/^[1-9]\d*$/.test(applicationId)) {
+      throw new Error('Mac application ID must be a positive integer');
+    }
+
+    await this.ensureAuthenticated();
+
+    try {
+      logger.info(`Getting Mac App Store application details for ${applicationId} using Classic API...`);
+      const response = await this.axiosInstance.get(`/JSSResource/macapplications/id/${applicationId}`);
+      return response.data.mac_application;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        throw JamfAPIError.fromAxiosError(error, { operation: 'getMacApplicationDetails', applicationId });
+      }
+      logger.error('Failed to get Mac App Store application details:', { error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
    * List all mobile device applications configured for delivery
    */
   async listMobileDeviceApplications(): Promise<any[]> {

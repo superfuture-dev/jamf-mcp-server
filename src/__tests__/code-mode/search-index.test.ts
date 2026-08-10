@@ -26,6 +26,7 @@ describe('SearchIndex', () => {
       expect(cats).toContain('policies');
       expect(cats).toContain('scripts');
       expect(cats).toContain('reports');
+      expect(cats).toContain('mac_applications');
       expect(cats).toContain('helpers');
     });
   });
@@ -65,6 +66,24 @@ describe('SearchIndex', () => {
         capabilities: ['read:mobile_device_applications'],
         readOnly: true,
       });
+    });
+
+    it('finds read-only Mac App Store application inventory by name or VPP', () => {
+      for (const query of ['Mac App Store', 'VPP']) {
+        const results = search(query);
+        expect(results.map(result => result.name)).toContain('listMacApplications');
+        expect(results.map(result => result.name)).toContain('getMacApplicationDetails');
+
+        for (const method of ['listMacApplications', 'getMacApplicationDetails']) {
+          expect(results.find(result => result.name === method)).toMatchObject({
+            category: 'mac_applications',
+            capabilities: ['read:mac_applications'],
+            readOnly: true,
+          });
+        }
+      }
+
+      expect(search('getMacApplicationDetails')[0].name).toBe('getMacApplicationDetails');
     });
 
     it('ranks exact name matches highest', () => {

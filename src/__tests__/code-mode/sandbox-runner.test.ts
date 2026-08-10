@@ -57,6 +57,8 @@ function createMockClient(overrides: Partial<IJamfApiClient> = {}): IJamfApiClie
     sendMDMCommand: jest.fn().mockResolvedValue(undefined),
     getMobileDeviceGroups: jest.fn().mockResolvedValue([]),
     getMobileDeviceGroupDetails: jest.fn().mockResolvedValue({}),
+    listMacApplications: jest.fn().mockResolvedValue([{ id: '5', name: 'Example Mac App' }]),
+    getMacApplicationDetails: jest.fn().mockResolvedValue({ general: { id: '5', name: 'Example Mac App', version: '14.5' } }),
     listMobileDeviceApplications: jest.fn().mockResolvedValue([{ id: '123', name: 'Example Mobile App' }]),
     getMobileDeviceApplicationDetails: jest.fn().mockResolvedValue({ general: { id: '123', name: 'Example Mobile App' } }),
     getInventorySummary: jest.fn().mockResolvedValue({}),
@@ -183,6 +185,48 @@ describe('SandboxRunner', () => {
       expect(result.returnValue).toEqual({ general: { id: '123', name: 'Example Mobile App' } });
       expect(result.metrics.reads).toBe(1);
       expect(client.getMobileDeviceApplicationDetails).toHaveBeenCalledWith('123');
+    });
+
+    it('lists Mac App Store applications as a single read in plan mode', async () => {
+      const client = createMockClient();
+      const result = await execute(client, {
+        code: 'return await jamf.listMacApplications();',
+        mode: 'plan',
+        capabilities: ['read:mac_applications'],
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.returnValue).toEqual([{ id: '5', name: 'Example Mac App' }]);
+      expect(result.metrics).toMatchObject({ reads: 1, writes: 0, commands: 0 });
+      expect(client.listMacApplications).toHaveBeenCalledWith();
+    });
+
+    it('reads Mac App Store application catalog details as a single read in plan mode', async () => {
+      const client = createMockClient();
+      const result = await execute(client, {
+        code: 'return await jamf.getMacApplicationDetails("5");',
+        mode: 'plan',
+        capabilities: ['read:mac_applications'],
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.returnValue).toEqual({ general: { id: '5', name: 'Example Mac App', version: '14.5' } });
+      expect(result.metrics).toMatchObject({ reads: 1, writes: 0, commands: 0 });
+      expect(client.getMacApplicationDetails).toHaveBeenCalledWith('5');
+    });
+
+    it('rejects Mac App Store application reads without their dedicated capability', async () => {
+      for (const capability of ['read:app_installers', 'read:computers', 'read:mobile_device_applications']) {
+        const client = createMockClient();
+        const result = await execute(client, {
+          code: 'return await jamf.listMacApplications();',
+          mode: 'plan',
+          capabilities: [capability],
+        });
+
+        expect(result.success).toBe(false);
+        expect(client.listMacApplications).not.toHaveBeenCalled();
+      }
     });
   });
 

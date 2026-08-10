@@ -186,6 +186,14 @@ const ListMobileDevicesSchema = z.object({
   limit: z.number().optional().default(50).describe('Maximum number of mobile devices to return'),
 });
 
+const ListMacApplicationsSchema = z.object({});
+
+const GetMacApplicationDetailsSchema = z.object({
+  applicationId: z.string()
+    .regex(/^[1-9]\d*$/, 'Mac application ID must be a positive integer')
+    .describe('The Mac App Store application ID'),
+});
+
 const ListMobileDeviceApplicationsSchema = z.object({});
 
 const GetMobileDeviceApplicationDetailsSchema = z.object({
@@ -1410,6 +1418,30 @@ export function registerTools(server: Server, jamfClient: IJamfApiClient): void 
               default: 50,
             },
           },
+        },
+        annotations: { readOnlyHint: true, destructiveHint: false },
+      },
+      {
+        name: 'listMacApplications',
+        description: 'List all Mac App Store (VPP) applications configured for delivery in Jamf Pro',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+        annotations: { readOnlyHint: true, destructiveHint: false },
+      },
+      {
+        name: 'getMacApplicationDetails',
+        description: 'Get Mac App Store (VPP) application details, including the catalog version and delivery scope',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            applicationId: {
+              type: 'string',
+              description: 'The Mac App Store application ID',
+            },
+          },
+          required: ['applicationId'],
         },
         annotations: { readOnlyHint: true, destructiveHint: false },
       },
@@ -4018,6 +4050,33 @@ export function registerTools(server: Server, jamfClient: IJamfApiClient): void 
                 supervised: d.supervised,
               })),
             }, null, 2),
+          };
+
+          return { content: [content] };
+        }
+
+        case 'listMacApplications': {
+          ListMacApplicationsSchema.parse(args);
+          const applications = await jamfClient.listMacApplications();
+
+          const content: TextContent = {
+            type: 'text',
+            text: JSON.stringify({
+              count: applications.length,
+              applications,
+            }, null, 2),
+          };
+
+          return { content: [content] };
+        }
+
+        case 'getMacApplicationDetails': {
+          const { applicationId } = GetMacApplicationDetailsSchema.parse(args);
+          const application = await jamfClient.getMacApplicationDetails(applicationId);
+
+          const content: TextContent = {
+            type: 'text',
+            text: JSON.stringify(application, null, 2),
           };
 
           return { content: [content] };

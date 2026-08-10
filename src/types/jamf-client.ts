@@ -159,6 +159,10 @@ export interface IJamfApiClient {
   getMobileDeviceGroups(type?: GroupType): Promise<any[]>;
   getMobileDeviceGroupDetails(groupId: string): Promise<any>;
 
+  // Mac App Store Applications
+  listMacApplications(): Promise<any[]>;
+  getMacApplicationDetails(applicationId: string): Promise<any>;
+
   // Mobile Device Applications
   listMobileDeviceApplications(): Promise<any[]>;
   getMobileDeviceApplicationDetails(applicationId: string): Promise<any>;

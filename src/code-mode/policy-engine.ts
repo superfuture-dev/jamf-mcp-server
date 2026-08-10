@@ -83,6 +83,10 @@ const METHOD_POLICIES: Record<string, MethodPolicy> = {
   getMobileDeviceGroups:        { classification: 'read', capability: 'read:mobile_devices' },
   getMobileDeviceGroupDetails:  { classification: 'read', capability: 'read:mobile_devices' },
 
+  // Mac App Store Applications
+  listMacApplications:          { classification: 'read', capability: 'read:mac_applications' },
+  getMacApplicationDetails:     { classification: 'read', capability: 'read:mac_applications' },
+
   // Mobile Device Applications
   listMobileDeviceApplications: { classification: 'read', capability: 'read:mobile_device_applications' },
   getMobileDeviceApplicationDetails: { classification: 'read', capability: 'read:mobile_device_applications' },
